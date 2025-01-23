@@ -40,13 +40,36 @@ def find_period(grundy, max_a):
     - tuple: (pre-period l, period p)
     """
     length = len(grundy)
-    for l in range(max_a, length):  # Start searching from max_a
-        for p in range(1, length - l):
-            if grundy[l:l + p] == grundy[l + p:l + 2 * p]:  # Check for periodicity
-                # Verify periodicity according to Corollary 7.34
-                if all(grundy[n] == grundy[n + p] for n in range(l, min(l + p + max_a, length))):
-                    return l, p
+    try:
+        for l in range(max_a, length):  # Start searching from max_a
+            for p in range(1, length - l):
+                if grundy[l:l + p] == grundy[l + p:l + 2 * p]:  # Check for periodicity
+                    # Verify periodicity according to Corollary 7.34
+                    if all(grundy[n] == grundy[n + p] for n in range(l, min(l + p + max_a, length))):
+                        return l, p
+    except Exception:
+        pass
     return None, None  # If no period is found
+
+def find_period_iterative(S, max_n):
+    max_a = max(S)
+
+    grundy = [0] * (max_n + 1)
+
+    for n in range(1, max_n + 1):
+        # Determine reachable Grundy numbers
+        reachable = {grundy[n - move] for move in S if n - move >= 0}
+        # Minimum excluded value (mex)
+        tmp_val = 0
+        while tmp_val in reachable:
+            tmp_val += 1
+        grundy[n] = tmp_val
+
+        temp_grundy = grundy[:n]
+        l, p = find_period(temp_grundy, max_a)
+
+        if l is not None:
+            return l, p
 
 
 def max_period(S):
@@ -72,19 +95,22 @@ def worst_period(max_a, size_S):
     possible_moves = generate_combinations(max_a, size_S)
     period = 0
     worst_S = []
+    max_period = min((size_S + 1)**max_a, 1000)
+    max_n = 4 * max_period
 
     for S in tqdm(possible_moves):
         # # how many steps should we check?
         # # let's say that period must happen at least 3 times
         # # so let's get 4 times, with pre-period in mind
         # max_per = max_period(S)
-        max_n = 2**max_a
-        grundy = calculate_grundy(S, 4*max_n)
-        l, p = find_period(grundy, max_a)
+        l, p = find_period_iterative(S, max_n)
 
         if p > period:
             period = p
             worst_S = S
+
+            if period == max_period:
+                break
 
     return period, worst_S
 
