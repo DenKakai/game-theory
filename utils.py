@@ -53,6 +53,14 @@ def find_period(grundy, max_a):
     return None, None  # If no period is found
 
 def find_period_iterative(S, max_n):
+    if len(S) == 3:
+        if S[0] == 1 and S[1] == 2:
+            return None, S[2] + 1 if S[2] % 3 == 0 else 3
+        if S[0] == 1 and S[1] == 3:
+            return None, S[2] + 3 if S[2] % 2 == 0 else 2
+        if S[0] == 1 and S[1] + 1 == S[2] and S[2] >= 3:
+            return None, 2 * S[1] + 1 if S[1] % 2 == 0 else 2 * S[1]
+
     max_a = max(S)
 
     grundy = [0] * (max_n + 1)
