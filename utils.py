@@ -1,6 +1,7 @@
 import numpy as np
 from itertools import combinations
 from tqdm import tqdm
+import time
 
 
 ### TODO: I'd try to somehow incorporate grundy and period together, to maybe limit the max_n in calculations
@@ -70,6 +71,8 @@ def find_period_iterative(S, max_n):
 
         if l is not None:
             return l, p
+    
+    return None, None
 
 
 def max_period(S):
@@ -95,22 +98,35 @@ def worst_period(max_a, size_S):
     possible_moves = generate_combinations(max_a, size_S)
     period = 0
     worst_S = []
-    max_period = min((size_S + 1)**max_a, 1000)
-    max_n = 4 * max_period
+    max_period = (size_S + 1)**max_a
+    max_n = min(4 * max_period, 10000)
 
-    for S in tqdm(possible_moves):
-        # # how many steps should we check?
-        # # let's say that period must happen at least 3 times
-        # # so let's get 4 times, with pre-period in mind
-        # max_per = max_period(S)
-        l, p = find_period_iterative(S, max_n)
 
-        if p > period:
-            period = p
-            worst_S = S
+    with open(f'data/S={size_S}/max_a={max_a}', 'w') as file:
+        file.write('S;p;l\n')
+        for S in tqdm(possible_moves):
+            # # how many steps should we check?
+            # # let's say that period must happen at least 3 times
+            # # so let's get 4 times, with pre-period in mind
+            # max_per = max_period(S)
+            l, p = find_period_iterative(S, max_n)
 
-            if period == max_period:
-                break
+            #ZAPIS
+            line = f'{S};{p};{l}'
+            file.write(line + '\n')
+
+
+            if l is None:
+                return None, None
+
+            if p > period:
+                period = p
+                worst_S = S
+
+                if period == max_period:
+                    break
+    
+
 
     return period, worst_S
 
@@ -120,9 +136,20 @@ def worst_period_values_S(max_n, size_S):
 
     values = []
 
-    for max_a in range(1, max_n+1):
-        period, S = worst_period(max_a, size_S)
-        values.append(period) 
+    with open(f'data/times/S={size_S}', 'w') as file:
+        file.write('max_a;duration\n')
+
+        for max_a in range(1, max_n+1):
+            start_time = time.time()
+            period, S = worst_period(max_a, size_S)
+            end_time = time.time()
+            duration = end_time - start_time
+
+            line = f'{max_a};{duration}'
+            file.write(line + '\n')
+
+            values.append(period) 
+            print(f"max_a: {max_a}, period: {period}, S: {S}")
 
     return values
 
