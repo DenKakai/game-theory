@@ -107,7 +107,7 @@ def worst_period(max_a, size_S):
     period = 0
     worst_S = []
     max_period = (size_S + 1)**max_a
-    max_n = min(4 * max_period, 10000)
+    max_n = min(max_period, 10000)
 
 
     with open(f'data/S={size_S}/max_a={max_a}', 'w') as file:
