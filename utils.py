@@ -135,6 +135,7 @@ def worst_period_values_S(max_n, size_S):
     # max_n - up to which value do we want to check the period
 
     values = []
+    max_time = 60*15
 
     with open(f'data/times/S={size_S}', 'w') as file:
         file.write('max_a;duration\n')
@@ -150,6 +151,9 @@ def worst_period_values_S(max_n, size_S):
 
             values.append(period) 
             print(f"max_a: {max_a}, period: {period}, S: {S}")
+
+            if duration > max_time:
+                break
 
     return values
 
